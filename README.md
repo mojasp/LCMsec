@@ -20,9 +20,11 @@ This is achieved with the use of:
 * AES/GCM or ChaChaPoly1305 as the underlying authenticated encryption algorithm.
 * The Dutta-Barua group key agreement (modified to use EC-Cryptography) to agree on the symmetric key while minimizing the number of network interactions when a publisher or subscriber joins a topic (i.e., is turned on)
 
-For more informations please take a look at the [paper on LCMsec](https://arxiv.org/abs/2308.07095).
+For more informations please take a look at the [paper on LCMsec](https://ieeexplore.ieee.org/abstract/document/10333516).
 
 # Limitations of LCMsec
+
+**The Implementation of LCMsec has not been vetted independently. Use at your own risk. LCMsec is not actively maintained**
 
 * Additional dependencies are Botan and libstdc++.
 * Not yet adressed are the issues of rekeying and certificate revocation, which will be a next step. 
@@ -40,51 +42,3 @@ For more informations please take a look at the [paper on LCMsec](https://arxiv.
 * At this point, just use the created lcm instance as you normally would.
 
 An Example for an application using LCMsec can be found in `examples/cpp_security` folder.
-
-# Roadmap
-
-The LCM project is active again. The current long-term plan is to focus on stability and maintenance
-patches to fix longstanding issues. Longer term we're open to evolution of LCM to have additional
-features (as long as backwards compatibility is enforced). We're very open to community
-feedback and involvement on new features.
-
-# Quick Links
-
-* [Installing LCM](https://lcm-proj.github.io/lcm/content/install-instructions.html)
-* [LCM downloads](https://github.com/lcm-proj/lcm/releases)
-* [Website and documentation](https://lcm-proj.github.io/lcm)
-
-
-# Features
-
-* Low-latency inter-process communication
-* Efficient broadcast mechanism using UDP Multicast
-* Type-safe message marshalling
-* User-friendly logging and playback
-* No centralized "database" or "hub" -- peers communicate directly
-* No daemons
-* Few dependencies
-
-## Supported platforms and languages
-
-* Platforms:
-  * GNU/Linux
-      * Ubuntu (22.04 and 24.04)
-      * Fedora (41)
-  * macOS (13 and 14)
-  * Windows (2019 and 2022) via MSYS2
-* Languages
-  * C
-  * C++
-  * Java
-  * Lua
-  * MATLAB
-  * Python (3.7 and later)
-
-## Unmaintained languages
-
-The following languages are currently unmaintained. PRs for these languages are still welcome and if
-you are interested in maintaining them please let us know.
-
- * Go
- * C#/.NET
