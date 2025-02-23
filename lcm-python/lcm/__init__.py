@@ -1,4 +1,24 @@
 import os
+import sys
+import subprocess
+
+# Attempt to be backwards compatible
+if sys.version_info >= (3, 6):
+    from os import PathLike
+elif sys.version_info >= (3, 4):
+    from pathlib import Path as PathLike
+else:
+    # All we do to the Path is call str on it, so this is a harmless fallback.
+    PathLike = str
+
+if sys.version_info >= (3, 5):
+    import typing
+    # Not including `bytes` like other APIs in the union as the native interface does not accept a byte string.
+    # Makes more sense for the user to .decode(encoding) the bytes than us.
+    PathArgument = typing.Union[str, PathLike]
+else:
+    PathArgument = object
+
 
 from lcm import _lcm
 from lcm._lcm import LCM, LCMSubscription
@@ -33,7 +53,7 @@ to next() returning the next L{Event<lcm.Event>} in the log.
 
 @undocumented: __iter__
     """
-    def __init__ (self, path, mode = "r", overwrite = False):
+    def __init__ (self, path:PathArgument, mode = "r", overwrite = False):
         """
         Initializer
 
@@ -52,6 +72,9 @@ to next() returning the next L{Event<lcm.Event>} in the log.
                     "unless overwrite is set to True")
 
         self.mode = mode
+
+        if isinstance(path, PathLike):
+            path = str(path)
 
         self.c_eventlog = _lcm.EventLog (path, mode)
         self.f = None
@@ -142,3 +165,41 @@ to next() returning the next L{Event<lcm.Event>} in the log.
         @rtype: int
         """
         return self.c_eventlog.ftell ()
+
+LCM_BIN_DIR = os.path.join(os.path.dirname(__file__), '..', 'bin')
+
+def run_script(name: str, args) -> int:
+    try:
+        return subprocess.call([os.path.join(LCM_BIN_DIR, name), *args], close_fds=False)
+    except KeyboardInterrupt:
+        return 0
+
+def run_example():
+    raise SystemExit(run_script('lcm-example', sys.argv[1:]))
+
+def run_gen():
+    raise SystemExit(run_script('lcm-gen', sys.argv[1:]))
+
+def run_logfilter():
+    raise SystemExit(run_script('lcm-logfilter', sys.argv[1:]))
+
+def run_logger():
+    raise SystemExit(run_script('lcm-logger', sys.argv[1:]))
+
+def run_logplayer():
+    raise SystemExit(run_script('lcm-logplayer', sys.argv[1:]))
+
+def run_logplayer_gui():
+    raise SystemExit(run_script('lcm-logplayer-gui', sys.argv[1:]))
+
+def run_sink():
+    raise SystemExit(run_script('lcm-sink', sys.argv[1:]))
+
+def run_source():
+    raise SystemExit(run_script('lcm-source', sys.argv[1:]))
+
+def run_spy():
+    raise SystemExit(run_script('lcm-spy', sys.argv[1:]))
+
+def run_tester():
+    raise SystemExit(run_script('lcm-tester', sys.argv[1:]))

@@ -21,28 +21,51 @@ release or the latest `master`, we recommend referring to the copy of this
 document (`docs/content/build-instructions.md`) found in your source
 distribution.
 
-## CMake Overview
+## Installing the Python module
+
+To build the Python module from source and install it, run:
+
+```
+pip3 install -v .
+```
+
+## CMake and Meson overview
 
 These instructions assume that you will build in a directory named `build` as
 a direct subdirectory of the source directory, and that you will use the
-default generator. CMake permits the build directory to be almost anywhere
-(although in-source builds are strongly discouraged), and supports multiple
-generators. To users familiar with CMake, we recommend using
-[Ninja](https://ninja-build.org/).
+default generator. CMake and Meson support multiple generators and permit the
+build directory to be almost anywhere (although in-source builds are strongly
+discouraged for both and are prohibited in Meson). To users familiar with
+CMake, we recommend using [Ninja](https://ninja-build.org/).
 
-A detailed description of how to use CMake is not specific to LCM and is beyond
-the scope of these instructions.
+A detailed description of how to use CMake or Meson is not specific to LCM and
+is beyond the scope of these instructions.
+
+By default CMake and Meson are configured to produce a release build. To build with debug symbols instead, use:
+
+```shell
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+```
+
+for CMake, and use:
+
+```shell
+meson setup build -Dbuildtype=debug
+```
+
+for Meson when configuring a build directory in the following sections.
 
 ## Ubuntu and Debian
 
 Required packages:
   - build-essential
-  - cmake
+  - cmake # note: if using CMake
+  - meson # note: if using Meson
   - libglib2.0-dev
 
 Optional packages (e.g., for language-specific support or building documentation):
   - default-jdk
-  - libjchart2d-java # note: if not installed, jchart2d will be built from source
+  - libjchart2d-java # note: if not installed, jchart2d will be built from source in CMake
   - doxygen
   - liblua5.3-dev
   - lua5.3
@@ -53,7 +76,7 @@ Python packages needed for building documentation:
   - myst-parser
   - sphinx-rtd-theme
 
-From a terminal, run the following commands.
+From a terminal, run the following commands for CMake:
 
 ```shell
 mkdir build
@@ -63,6 +86,15 @@ make
 sudo make install
 ```
 
+or run the following commands for Meson:
+
+```shell
+meson setup build
+cd build
+meson compile
+sudo meson install
+```
+
 ## OS X
 
 There are several ways to build LCM on OS X, none of which are necessarily
@@ -70,7 +102,7 @@ better than the others.
 
 ### Homebrew
 
-Install Homebrew packages
+Install Homebrew packages (swap `cmake` for `meson` if building with Meson)
 
 ```shell
 brew install glib pkg-config cmake
@@ -80,12 +112,23 @@ Install Java.  Type `javac` in a terminal, then follow the instructions.
 
 Download and build LCM.
 
+For CMake, run:
+
 ```shell
 mkdir build
 cd build
 cmake ..
 make
 make install
+```
+
+For Meson, run:
+
+```shell
+meson setup build
+cd build
+meson compile
+meson install
 ```
 
 ## Windows
@@ -115,7 +158,7 @@ or if you installed LCM to a different, non-standard prefix, you may wish to
 create a `ld.so.conf` file for lcm:
 
 ```shell
-echo $LCM_LIBRARY_DIR > /etc/ld.so.conf.d/lcm.conf
+echo $LCM_LIBRARY_DIR | sudo tee -a /etc/ld.so.conf.d/lcm.conf
 ```
 
 Python users may need to add the lcm install location to Python's site packages
@@ -149,3 +192,27 @@ In addition, `pkgconfig` can be configured to find lcm.pc:
 ```shell
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$LCM_LIBRARY_DIR/pkgconfig
 ```
+
+## Bazel
+
+LCM also supports [Bazel](https://bazel.build/) for a subset of languages
+(C, C++, Java, Python). The Bazel build only provides libraries and command
+line tools; it doesn't support building wheels or documentation.
+
+If you are already a Bazel user this is a good option, but if not you will
+perhaps be happier sticking with the CMake or Meson build, explained above.
+
+The Bazel build uses very few system packages, so most of the text above about
+required packages does not apply. The only required tool is a C/C++ compiler,
+e.g., `apt install build-essential` on Ubuntu and Debian. If Java will
+be used, a local JDK is also recommended, e.g., `apt install default-jdk`.
+See the [example](https://github.com/lcm-proj/lcm/tree/master/examples/bazel)
+for details.
+
+The Bazel build is not currently tested on Windows and is probably incomplete.
+We welcome contributions of build fixes (for Windows or any other problems).
+
+To try out the Bazel build, first install
+[bazelisk](https://github.com/bazelbuild/bazelisk) to provide `bazel` on your
+PATH and then run, e.g., `bazel run //lcm-java:lcm-spy`. See also the
+sample projct at `examples/bazel` for how to use LCM as a Bazel dependency.

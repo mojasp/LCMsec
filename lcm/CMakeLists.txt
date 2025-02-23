@@ -87,6 +87,9 @@ foreach(lcm_lib lcm lcm-static)
     _LARGEFILE_SOURCE
     _REENTRANT
   )
+  target_compile_options(${lcm_lib} PRIVATE
+      -Wno-incompatible-pointer-types
+  )
 
   set_target_properties(${lcm_lib} PROPERTIES
     VERSION ${LCM_VERSION}
